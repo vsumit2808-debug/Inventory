@@ -1,0 +1,7 @@
+name,sku,category,severity,quantity,reorder_threshold,shortfall,suggested_order,unit_price,supplier,location
+Ballpoint Pens Blue,STA-002,Stationery,LOW,8,40,32,100,0.6,WriteWell,Warehouse A - R1
+Coffee Beans 1kg,CTN-301,Pantry,LOW,9,10,1,20,18.5,BrewCo,Pantry Store
+Dust Masks N95,SFY-202,Safety,LOW,12,40,28,80,1.85,SafeGuard,Warehouse C - R2
+Laser Toner HP 26A,IT-101,IT Supplies,LOW,3,10,7,20,89.99,PrintSupply Ltd,Storage B - Cabinet 1
+Trash Bags Large,CTN-304,Pantry,OUT,0,25,25,50,4.1,CleanPro,Utility Room
+USB-C Cables 1m,IT-102,IT Supplies,OUT,0,30,30,60,5.75,CableHub,Storage B - Shelf 3

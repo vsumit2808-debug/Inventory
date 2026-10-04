@@ -1,0 +1,15 @@
+{% extends "inventory/base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h1>{{ title }}</h1>
+<section class="card form-card">
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div class="actions">
+      <button class="btn btn-primary" type="submit">Save</button>
+      <a class="btn" href="{% if item %}{% url 'item_detail' item.pk %}{% else %}{% url 'item_list' %}{% endif %}">Cancel</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

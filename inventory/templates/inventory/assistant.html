@@ -1,0 +1,75 @@
+{% extends "inventory/base.html" %}
+{% block title %}Assistant{% endblock %}
+{% block content %}
+<h1>Ask your stock</h1>
+<p class="subtitle">
+  Plain-English NLP for structured questions; RAG retrieval over inventory
+  records for everything else. No query syntax to learn.
+</p>
+
+<section class="card">
+  <form method="get" action="{% url 'assistant' %}" class="ask-form">
+    {{ form.question }}
+    <button class="btn btn-primary" type="submit">Ask</button>
+  </form>
+  <div class="examples">
+    Try:
+    <a class="chip" href="{% url 'assistant' %}?q=which+items+are+running+low%3F">which items are running low?</a>
+    <a class="chip" href="{% url 'assistant' %}?q=how+many+USB-C+cables+do+we+have%3F">how many USB-C cables do we have?</a>
+    <a class="chip" href="{% url 'assistant' %}?q=who+supplies+the+laser+toner+and+where+is+it+stored%3F">who supplies the laser toner?</a>
+    <a class="chip" href="{% url 'assistant' %}?q=give+me+an+overview+of+the+inventory">give me an overview</a>
+  </div>
+</section>
+
+{% if result %}
+<section class="card answer-card">
+  <h2>
+    Answer
+    <span class="tag tag-ai">intent: {{ result.intent }}</span>
+    <span class="tag">confidence: {{ result.confidence }}</span>
+  </h2>
+  <p class="answer">{{ result.answer|linebreaks }}</p>
+
+  {% if result.sources %}
+  <h3>Sources (retrieved records)</h3>
+  <ul class="plain-list">
+    {% for s in result.sources %}
+    <li>
+      <a href="{% url 'item_detail' s.pk %}">{{ s.name }}</a>
+      <code>{{ s.sku }}</code>
+      {% if s.score < 1.0 %}<span class="muted">relevance {{ s.score }}</span>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if result.results %}
+  <h3>Restock table</h3>
+  <table>
+    <thead><tr><th>Item</th><th>Qty</th><th>Threshold</th><th>Shortfall</th><th>Order</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for r in result.results %}
+      <tr>
+        <td>{{ r.name }}</td><td>{{ r.quantity }}</td><td>{{ r.reorder_threshold }}</td>
+        <td>{{ r.shortfall }}</td><td>~{{ r.suggested_order }}</td>
+        <td><span class="badge {% if r.severity == 'OUT' %}badge-out{% else %}badge-low{% endif %}">{{ r.severity }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</section>
+{% endif %}
+
+<section class="card">
+  <h2>Recent questions</h2>
+  <ul class="plain-list">
+    {% for log in recent %}
+    <li>
+      &ldquo;{{ log.question }}&rdquo;
+      <span class="muted">{{ log.intent }} &middot; confidence {{ log.confidence|floatformat:2 }} &middot; {{ log.created_at|date:"M d, H:i" }}</span>
+    </li>
+    {% empty %}<li class="muted">Nothing asked yet.</li>{% endfor %}
+  </ul>
+</section>
+{% endblock %}

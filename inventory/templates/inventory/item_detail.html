@@ -1,0 +1,59 @@
+{% extends "inventory/base.html" %}
+{% block title %}{{ item.name }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>{{ item.name }}</h1>
+  <div class="actions">
+    <a class="btn" href="{% url 'item_adjust' item.pk %}">Adjust stock</a>
+    <a class="btn" href="{% url 'item_update' item.pk %}">Edit</a>
+    <a class="btn btn-danger" href="{% url 'item_confirm_delete' item.pk %}">Delete</a>
+  </div>
+</div>
+
+<div class="two-col">
+  <section class="card">
+    <h2>Stock position</h2>
+    <p>
+      <span class="badge {% if item.status == 'OUT' %}badge-out{% elif item.status == 'LOW' %}badge-low{% else %}badge-ok{% endif %}">
+        {{ item.status_label }}
+      </span>
+    </p>
+    <table class="kv">
+      <tr><th>SKU</th><td><code>{{ item.sku }}</code></td></tr>
+      <tr><th>Category</th><td>{{ item.category|default:"General" }}</td></tr>
+      <tr><th>Quantity</th><td>{{ item.quantity }}</td></tr>
+      <tr><th>Reorder threshold</th><td>{{ item.reorder_threshold }}</td></tr>
+      <tr><th>Reorder quantity</th><td>{{ item.reorder_quantity|default:"auto" }}</td></tr>
+      <tr><th>Suggested order</th><td>~{{ item.suggested_order }}</td></tr>
+      <tr><th>Shortfall</th><td>{{ item.shortfall }}</td></tr>
+      <tr><th>Unit price</th><td>${{ item.unit_price|floatformat:2 }}</td></tr>
+      <tr><th>Supplier</th><td>{{ item.supplier|default:"-" }}</td></tr>
+      <tr><th>Location</th><td>{{ item.location|default:"-" }}</td></tr>
+      {% if item.notes %}<tr><th>Notes</th><td>{{ item.notes }}</td></tr>{% endif %}
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Movement history</h2>
+    <ul class="plain-list">
+      {% for m in movements %}
+      <li>
+        <strong>{{ m.delta|stringformat:"+d" }}</strong>
+        <span class="muted">{{ m.reason|lower }}{% if m.note %} &middot; {{ m.note }}{% endif %}
+        &middot; {{ m.created_at|date:"M d, Y H:i" }}</span>
+      </li>
+      {% empty %}<li class="muted">No movements yet.</li>{% endfor %}
+    </ul>
+
+    <h2 class="mt">Alert history</h2>
+    <ul class="plain-list">
+      {% for a in alerts %}
+      <li>
+        <span class="badge {% if a.severity == 'OUT' %}badge-out{% else %}badge-low{% endif %}">{{ a.severity }}</span>
+        <span class="muted">{{ a.created_at|date:"M d, Y" }} &middot; qty {{ a.quantity_at_alert }} / threshold {{ a.threshold_at_alert }}</span>
+      </li>
+      {% empty %}<li class="muted">Never flagged.</li>{% endfor %}
+    </ul>
+  </section>
+</div>
+{% endblock %}

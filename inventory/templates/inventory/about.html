@@ -1,0 +1,92 @@
+{% extends "inventory/base.html" %}
+{% block title %}How the AI works{% endblock %}
+{% block content %}
+<h1>How the AI works (and why it is here)</h1>
+<p class="subtitle">
+  Two techniques - NLP and RAG - are built into StockWise. Both run 100%
+  inside Python: no external API, no data leaving your MySQL database,
+  no per-query cost.
+</p>
+
+<section class="card">
+  <h2>1. NLP - natural language questions &amp; smart matching</h2>
+  <p>
+    <strong>Where:</strong> the Assistant page (<code>inventory/nlp/intent.py</code>)
+    and CSV import (<code>inventory/services/csvio.py</code>).
+  </p>
+  <p>
+    <strong>How:</strong> your free-text question is classified into an
+    <em>intent</em> (low-stock check, item quantity, category listing,
+    overview, help) using a weighted pattern classifier, and <em>entities</em>
+    (which item? which category?) are extracted with fuzzy string matching.
+    With the intent and entities the app answers from live MySQL data -
+    exact numbers, exact items. The same fuzzy matcher guards CSV imports:
+    an incoming row that is 87%+ similar to an existing item is flagged as a
+    duplicate instead of silently doubling your stock.
+  </p>
+  <p>
+    <strong>Meaning for you:</strong> warehouse staff never learn query
+    syntax - they just ask. <strong>Benefit:</strong> faster answers on the
+    floor, fewer import mistakes, and every question is logged
+    (<code>QueryLog</code>) so you can see what the team actually wants to
+    know.
+  </p>
+</section>
+
+<section class="card">
+  <h2>2. RAG - retrieval-augmented answers</h2>
+  <p>
+    <strong>Where:</strong> <code>inventory/rag/</code> (index, retriever,
+    generator), used whenever a question does not match a known intent -
+    e.g. &ldquo;who supplies the laser toner and where is it stored?&rdquo;
+  </p>
+  <p>
+    <strong>How:</strong> each active item becomes a document bundling its
+    facts (name, SKU, category, supplier, location, quantity, threshold,
+    status, notes). A TF-IDF vector-space index is built in-process; the
+    question is vectorised the same way; the top-k most similar records are
+    retrieved; the answer is generated strictly from those retrieved records
+    and shown with its sources. An optional OpenAI-compatible LLM can refine
+    the wording (set <code>RAG_LLM_ENABLED=1</code>) - but retrieval and
+    grounding stay identical, and the offline synthesiser is always the
+    fallback.
+  </p>
+  <p>
+    <strong>Meaning for you:</strong> you can ask questions no one pre-programmed.
+    <strong>Benefit:</strong> answers are grounded in your real records with
+    visible sources - the model cannot invent stock levels - and because
+    retrieval happens in-process over MySQL data, sensitive inventory details
+    never leave your server.
+  </p>
+</section>
+
+<section class="card">
+  <h2>3. NLG - the morning briefing</h2>
+  <p>
+    <strong>Where:</strong> <code>inventory/nlp/summary.py</code>, shown on
+    the dashboard and printed by <code>python manage.py check_stock</code>.
+  </p>
+  <p>
+    <strong>How:</strong> the raw counters (healthy / low / out, biggest
+    shortfalls, total value) are turned into a short readable paragraph.
+    Deterministic templates mean the same data always produces the same
+    sentence - auditable and dependency-free.
+  </p>
+  <p>
+    <strong>Meaning for you:</strong> one glance instead of one table.
+    <strong>Benefit:</strong> managers get a status sentence in email or
+    console before the first coffee; the client gets fewer stock-outs.
+  </p>
+</section>
+
+<section class="card">
+  <h2>Why no external AI service by default?</h2>
+  <p>
+    Inventory data is commercially sensitive and every external call costs
+    money and adds latency plus a failure mode. The default pipeline is
+    deterministic, offline, free per query, and identical on macOS, Windows
+    and Linux. When you want more fluent wording, flip on the optional LLM
+    hook - the grounding, sources and audit trail stay the same.
+  </p>
+</section>
+{% endblock %}

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}StockWise{% endblock %} - Inventory Sentinel</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'inventory/styles.css' %}">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{% url 'dashboard' %}">Stock<span>Wise</span></a>
+    <nav class="nav">
+      <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Dashboard</a>
+      <a href="{% url 'item_list' %}" class="{% if request.resolver_match.url_name == 'item_list' %}active{% endif %}">Items</a>
+      <a href="{% url 'import_csv' %}" class="{% if request.resolver_match.url_name == 'import_csv' %}active{% endif %}">Import CSV</a>
+      <a href="{% url 'reports' %}" class="{% if request.resolver_match.url_name == 'reports' %}active{% endif %}">Reports</a>
+      <a href="{% url 'assistant' %}" class="{% if request.resolver_match.url_name == 'assistant' %}active{% endif %}">Assistant</a>
+      <a href="{% url 'about' %}" class="{% if request.resolver_match.url_name == 'about' %}active{% endif %}">How AI works</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+          <div class="message {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <span>StockWise &middot; pure Python (Django) + MySQL &middot; no front-end JavaScript</span>
+  </footer>
+</body>
+</html>

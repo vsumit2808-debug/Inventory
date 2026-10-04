@@ -1,0 +1,63 @@
+{% extends "inventory/base.html" %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Restock report centre</h1>
+  <form method="post" action="{% url 'reports_generate' %}" class="inline-form">
+    {% csrf_token %}
+    <button class="btn btn-primary" type="submit">Generate report now</button>
+  </form>
+</div>
+<p class="subtitle">
+  The same files <code>python manage.py check_stock</code> writes every
+  morning &mdash; console output, dated TXT/CSV, and stable
+  <code>latest_restock_report.*</code> copies for automation.
+</p>
+
+<section class="card">
+  <h2>Generated report files</h2>
+  {% if files %}
+  <table>
+    <thead><tr><th>File</th><th>Size</th><th>Written</th><th></th></tr></thead>
+    <tbody>
+      {% for f in files %}
+      <tr>
+        <td><code>{{ f.name }}</code></td>
+        <td>{{ f.size_kb|floatformat:1 }} KB</td>
+        <td>{{ f.mtime|date:"M d, Y H:i" }}</td>
+        <td><a href="{% url 'report_download' f.name %}">Download</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="muted">
+      No report files yet. Click "Generate report now" or run
+      <code>python manage.py check_stock</code>.
+    </p>
+  {% endif %}
+</section>
+
+<section class="card">
+  <h2>Alert history</h2>
+  {% if alerts %}
+  <table>
+    <thead><tr><th>When</th><th>Item</th><th>SKU</th><th>Qty</th><th>Threshold</th><th>Severity</th></tr></thead>
+    <tbody>
+      {% for a in alerts %}
+      <tr>
+        <td>{{ a.created_at|date:"M d, Y H:i" }}</td>
+        <td>{{ a.item_name }}</td>
+        <td><code>{{ a.item_sku }}</code></td>
+        <td>{{ a.quantity_at_alert }}</td>
+        <td>{{ a.threshold_at_alert }}</td>
+        <td><span class="badge {% if a.severity == 'OUT' %}badge-out{% else %}badge-low{% endif %}">{{ a.severity }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">No alert snapshots yet.</p>
+  {% endif %}
+</section>
+{% endblock %}

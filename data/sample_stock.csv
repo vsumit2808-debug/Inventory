@@ -1,0 +1,16 @@
+Item Name,SKU,Category,Current Quantity,Reorder Threshold,Reorder Quantity,Unit Price,Supplier,Location,Notes
+A4 Copy Paper 80gsm,STA-001,Stationery,120,50,100,4.50,Global Paper Co,Warehouse A - R1,500-sheet reams
+Ballpoint Pens Blue,STA-002,Stationery,8,40,100,0.60,WriteWell,Warehouse A - R1,
+Sticky Notes 3x3,STA-003,Stationery,45,25,50,1.20,WriteWell,Warehouse A - R2,
+Laser Toner HP 26A,IT-101,IT Supplies,3,10,20,89.99,PrintSupply Ltd,Storage B - Cabinet 1,Genuine HP cartridge
+USB-C Cables 1m,IT-102,IT Supplies,0,30,60,5.75,CableHub,Storage B - Shelf 3,
+Wireless Mouse,IT-103,IT Supplies,22,15,30,12.40,CableHub,Storage B - Shelf 4,
+HDMI Cables 2m,IT-104,IT Supplies,18,10,20,7.30,CableHub,Storage B - Shelf 3,
+Batteries AA 4-pack,IT-105,IT Supplies,37,20,40,6.80,CableHub,Storage B - Shelf 5,
+Safety Gloves L,SFY-201,Safety,64,30,60,2.10,SafeGuard,Warehouse C - R1,
+Dust Masks N95,SFY-202,Safety,12,40,80,1.85,SafeGuard,Warehouse C - R2,Box of 20
+First Aid Kit,SFY-203,Safety,6,5,10,24.00,MediCorp,Office Reception,
+Coffee Beans 1kg,CTN-301,Pantry,9,10,20,18.50,BrewCo,Pantry Store,Arabica medium roast
+Milk Powder 500g,CTN-302,Pantry,26,15,30,9.90,BrewCo,Pantry Store,
+Paper Towels,CTN-303,Pantry,31,20,40,3.25,BrewCo,Pantry Store,
+Trash Bags Large,CTN-304,Pantry,0,25,50,4.10,CleanPro,Utility Room,

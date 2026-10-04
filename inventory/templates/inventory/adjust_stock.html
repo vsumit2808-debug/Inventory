@@ -1,0 +1,17 @@
+{% extends "inventory/base.html" %}
+{% block title %}Adjust {{ item.name }}{% endblock %}
+{% block content %}
+<h1>Adjust stock: {{ item.name }}</h1>
+<p class="subtitle">Current quantity: {{ item.quantity }} &middot; every change is recorded in the audit trail.</p>
+
+<section class="card form-card">
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div class="actions">
+      <button class="btn btn-primary" type="submit">Apply adjustment</button>
+      <a class="btn" href="{% url 'item_detail' item.pk %}">Cancel</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

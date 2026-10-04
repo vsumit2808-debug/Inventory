@@ -1,0 +1,54 @@
+{% extends "inventory/base.html" %}
+{% block title %}Import CSV{% endblock %}
+{% block content %}
+<h1>Import stock from CSV</h1>
+<p class="subtitle">
+  Flexible headers accepted: <code>Item Name / item</code>,
+  <code>Current Quantity / qty</code>, <code>Reorder Threshold / threshold</code>,
+  plus SKU, category, unit price, supplier, location, notes.
+</p>
+
+<section class="card form-card">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div class="actions">
+      <button class="btn btn-primary" type="submit">Import</button>
+      <a class="btn" href="{% url 'item_list' %}">View items</a>
+    </div>
+  </form>
+</section>
+
+{% if result %}
+<div class="two-col">
+  <section class="card">
+    <h2>Created <span class="tag tag-ok">{{ result.created|length }}</span></h2>
+    <ul class="plain-list">
+      {% for r in result.created %}
+      <li>{{ r.name }} <code>{{ r.sku }}</code></li>
+      {% empty %}<li class="muted">None.</li>{% endfor %}
+    </ul>
+    <h2 class="mt">Updated <span class="tag tag-ok">{{ result.updated|length }}</span></h2>
+    <ul class="plain-list">
+      {% for r in result.updated %}
+      <li>{{ r.name }} <code>{{ r.sku }}</code> <span class="muted">{{ r.reason }}</span></li>
+      {% empty %}<li class="muted">None.</li>{% endfor %}
+    </ul>
+  </section>
+  <section class="card">
+    <h2>Skipped <span class="tag tag-warn">{{ result.skipped|length }}</span></h2>
+    <ul class="plain-list">
+      {% for r in result.skipped %}
+      <li>Row {{ r.row }}: {{ r.name|default:"-" }} <span class="muted">{{ r.reason }}</span></li>
+      {% empty %}<li class="muted">None.</li>{% endfor %}
+    </ul>
+    {% if result.warnings %}
+    <h2 class="mt">Warnings</h2>
+    <ul class="plain-list">
+      {% for w in result.warnings %}<li class="muted">{{ w }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+  </section>
+</div>
+{% endif %}
+{% endblock %}

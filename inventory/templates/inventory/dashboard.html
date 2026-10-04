@@ -1,0 +1,116 @@
+{% extends "inventory/base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h1>Morning stock check</h1>
+<p class="subtitle">Live view of every item against its reorder threshold.</p>
+
+<div class="kpi-grid">
+  <div class="kpi">
+    <span class="kpi-num">{{ stats.total }}</span>
+    <span class="kpi-label">Active items</span>
+  </div>
+  <div class="kpi">
+    <span class="kpi-num kpi-ok">{{ stats.ok }}</span>
+    <span class="kpi-label">Healthy</span>
+  </div>
+  <div class="kpi">
+    <span class="kpi-num kpi-low">{{ stats.low }}</span>
+    <span class="kpi-label">Low stock</span>
+  </div>
+  <div class="kpi">
+    <span class="kpi-num kpi-out">{{ stats.out }}</span>
+    <span class="kpi-label">Out of stock</span>
+  </div>
+  <div class="kpi">
+    <span class="kpi-num">{{ total_units }}</span>
+    <span class="kpi-label">Units on hand</span>
+  </div>
+  <div class="kpi">
+    <span class="kpi-num">${{ stock_value|floatformat:2 }}</span>
+    <span class="kpi-label">Stock value</span>
+  </div>
+</div>
+
+<section class="card briefing">
+  <h2>Morning briefing <span class="tag tag-ai">auto-generated (NLG)</span></h2>
+  <p>{{ briefing }}</p>
+  <p class="muted">
+    Run the same job headless: <code>python manage.py check_stock</code>
+    &mdash; schedule it daily with cron / Task Scheduler (see README).
+  </p>
+</section>
+
+<div class="two-col">
+  <section class="card">
+    <h2>Restock needed <span class="tag tag-danger">{{ restock|length }}</span></h2>
+    {% if restock %}
+    <table>
+      <thead>
+        <tr><th>Item</th><th>Qty</th><th>Threshold</th><th>Order</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {% for r in restock %}
+        <tr>
+          <td><a href="{% url 'item_detail' r.id %}">{{ r.name }}</a></td>
+          <td>{{ r.quantity }}</td>
+          <td>{{ r.reorder_threshold }}</td>
+          <td>~{{ r.suggested_order }}</td>
+          <td><span class="badge {% if r.severity == 'OUT' %}badge-out{% else %}badge-low{% endif %}">{{ r.severity }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p class="muted">Nothing to restock. Every item is above its threshold.</p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h2>Units by category</h2>
+    {% for c in chart %}
+    <div class="bar-row">
+      <span class="bar-label">{{ c.label }}</span>
+      <div class="bar-track"><div class="bar-fill" style="width: {{ c.pct }}%"></div></div>
+      <span class="bar-value">{{ c.total }}</span>
+    </div>
+    {% empty %}
+      <p class="muted">No items yet.</p>
+    {% endfor %}
+
+    <h2 class="mt">Recent movements</h2>
+    <ul class="plain-list">
+      {% for m in recent_movements %}
+      <li>
+        <strong>{{ m.delta|stringformat:"+d" }}</strong>
+        {{ m.item.name }}
+        <span class="muted">{{ m.reason|lower }} &middot; {{ m.created_at|date:"M d, H:i" }}</span>
+      </li>
+      {% empty %}
+      <li class="muted">No movements recorded yet.</li>
+      {% endfor %}
+    </ul>
+  </section>
+</div>
+
+<section class="card">
+  <h2>Recent alert snapshots</h2>
+  {% if recent_alerts %}
+  <table>
+    <thead><tr><th>When</th><th>Item</th><th>Qty at alert</th><th>Threshold</th><th>Severity</th></tr></thead>
+    <tbody>
+      {% for a in recent_alerts %}
+      <tr>
+        <td>{{ a.created_at|date:"M d, Y H:i" }}</td>
+        <td>{{ a.item_name }}</td>
+        <td>{{ a.quantity_at_alert }}</td>
+        <td>{{ a.threshold_at_alert }}</td>
+        <td><span class="badge {% if a.severity == 'OUT' %}badge-out{% else %}badge-low{% endif %}">{{ a.severity }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">No alerts yet. Run <code>python manage.py check_stock</code> to create the first snapshot.</p>
+  {% endif %}
+</section>
+{% endblock %}

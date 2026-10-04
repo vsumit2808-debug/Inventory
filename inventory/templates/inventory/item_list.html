@@ -1,0 +1,64 @@
+{% extends "inventory/base.html" %}
+{% block title %}Items{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Items</h1>
+  <div class="actions">
+    <a class="btn" href="{% url 'export_csv' %}">Export CSV</a>
+    <a class="btn btn-primary" href="{% url 'item_create' %}">+ Add item</a>
+  </div>
+</div>
+
+<form method="get" class="filter-bar">
+  <input class="input" type="text" name="q" value="{{ q }}" placeholder="Search name, SKU or supplier">
+  <select class="input" name="category">
+    <option value="">All categories</option>
+    {% for c in categories %}
+      <option value="{{ c }}" {% if c == category %}selected{% endif %}>{{ c }}</option>
+    {% endfor %}
+  </select>
+  <select class="input" name="status">
+    <option value="">Any status</option>
+    <option value="OK" {% if status == 'OK' %}selected{% endif %}>Healthy</option>
+    <option value="LOW" {% if status == 'LOW' %}selected{% endif %}>Low stock</option>
+    <option value="OUT" {% if status == 'OUT' %}selected{% endif %}>Out of stock</option>
+  </select>
+  <button class="btn btn-primary" type="submit">Filter</button>
+</form>
+
+<section class="card">
+  {% if items %}
+  <table>
+    <thead>
+      <tr>
+        <th>Item</th><th>SKU</th><th>Category</th><th>Qty</th>
+        <th>Threshold</th><th>Status</th><th>Supplier</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+      <tr>
+        <td><a href="{% url 'item_detail' item.pk %}">{{ item.name }}</a></td>
+        <td><code>{{ item.sku }}</code></td>
+        <td>{{ item.category|default:"General" }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.reorder_threshold }}</td>
+        <td>
+          <span class="badge {% if item.status == 'OUT' %}badge-out{% elif item.status == 'LOW' %}badge-low{% else %}badge-ok{% endif %}">
+            {{ item.status_label }}
+          </span>
+        </td>
+        <td>{{ item.supplier|default:"-" }}</td>
+        <td class="row-actions">
+          <a href="{% url 'item_update' item.pk %}">Edit</a>
+          <a href="{% url 'item_adjust' item.pk %}">Adjust</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="muted">No items match. Try clearing filters, importing a CSV, or adding an item.</p>
+  {% endif %}
+</section>
+{% endblock %}

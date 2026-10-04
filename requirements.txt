@@ -1,10 +1,4 @@
-# StockWise - pure Python stack. Installs identically on macOS/Windows/Linux.
 Django>=4.2,<6.0
 PyMySQL>=1.1.0
 python-dotenv>=1.0.0
-
-# cryptography is ONLY needed for MySQL 8's default caching_sha2_password auth.
-# Cap below 49 so pip always grabs a PREBUILT wheel (universal2 macOS / Windows /
-# manylinux). Newest releases (49+/50+) dropped some platform wheels, which made
-# pip fall back to a Rust source build and crash on machines without OpenSSL.
 cryptography>=41.0,<49
